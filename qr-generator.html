@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator for Article</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="url"], select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .generate-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+        }
+        
+        .generate-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .qr-display {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 10px;
+        }
+        
+        .qr-code {
+            margin: 20px 0;
+        }
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .embed-code {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .instructions {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 QR Code Generator for Article</h1>
+        
+        <div class="instructions">
+            <h3>Instructions:</h3>
+            <ol>
+                <li>Enter the URL where your certificate generator is hosted</li>
+                <li>Choose QR code size and error correction level</li>
+                <li>Generate QR code</li>
+                <li>Download or copy embed code for your article</li>
+            </ol>
+        </div>
+        
+        <div class="form-group">
+            <label for="url">Certificate Generator URL:</label>
+            <input type="url" id="url" placeholder="https://your-domain.com/nft-proof/" required>
+            <small>Example: If hosting on GitHub Pages, use: https://username.github.io/repository-name/</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="size">QR Code Size:</label>
+            <select id="size">
+                <option value="200">200x200 (Small)</option>
+                <option value="300" selected>300x300 (Medium)</option>
+                <option value="400">400x400 (Large)</option>
+                <option value="500">500x500 (Extra Large)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="errorCorrection">Error Correction Level:</label>
+            <select id="errorCorrection">
+                <option value="L">Low (7%)</option>
+                <option value="M" selected>Medium (15%)</option>
+                <option value="Q">Quartile (25%)</option>
+                <option value="H">High (30%)</option>
+            </select>
+        </div>
+        
+        <button class="generate-btn" onclick="generateQR()">Generate QR Code</button>
+        
+        <div id="qrDisplay" class="qr-display" style="display: none;">
+            <h3>Your QR Code</h3>
+            <div class="qr-code" id="qrCode"></div>
+            <p>Scan this QR code to access the certificate generator</p>
+            
+            <button class="download-btn" onclick="downloadQR()">Download PNG</button>
+            <button class="download-btn" onclick="downloadSVG()">Download SVG</button>
+            
+            <h4>Embed Code for Your Article:</h4>
+            <div class="embed-code" id="embedCode"></div>
+            
+            <h4>Markdown for Articles:</h4>
+            <div class="embed-code" id="markdownCode"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script>
+        function generateQR() {
+            const url = document.getElementById('url').value.trim();
+            const size = parseInt(document.getElementById('size').value);
+            const errorCorrectionLevel = document.getElementById('errorCorrection').value;
+            
+            if (!url) {
+                alert('Please enter a valid URL');
+                return;
+            }
+            
+            // Clear previous QR code
+            document.getElementById('qrCode').innerHTML = '';
+            
+            // Generate QR code
+            QRCode.toCanvas(document.getElementById('qrCode'), url, {
+                width: size,
+                height: size,
+                errorCorrectionLevel: errorCorrectionLevel,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error(error);
+                    alert('Error generating QR code');
+                    return;
+                }
+                
+                // Show the display area
+                document.getElementById('qrDisplay').style.display = 'block';
+                
+                // Generate embed codes
+                generateEmbedCodes(url, size);
+            });
+        }
+        
+        function generateEmbedCodes(url, size) {
+            // HTML embed code
+            const htmlEmbed = `<!-- NFT Article Completion Certificate -->
+<div style="text-align: center; margin: 20px 0; padding: 20px; border: 2px solid #667eea; border-radius: 10px; background: #f8f9ff;">
+    <h3>🏆 Claim Your Completion Certificate!</h3>
+    <p>You've reached the end of this article about NFT utility. Claim your proof of completion certificate:</p>
+    <canvas id="article-qr-code" style="margin: 10px;"></canvas>
+    <p><strong>Scan the QR code above</strong> or <a href="${url}" target="_blank">click here</a> to generate your certificate</p>
+    <script>
+        QRCode.toCanvas(document.getElementById('article-qr-code'), '${url}', {
+            width: ${size},
+            height: ${size}
+        });
+    </script>
+</div>`;
+            
+            // Markdown code
+            const markdownEmbed = `## 🏆 Claim Your Completion Certificate!
+
+You've reached the end of this article about NFT utility. Claim your proof of completion certificate:
+
+![QR Code for Certificate](https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)})
+
+**Scan the QR code above** or [click here](${url}) to generate your certificate
+
+---
+*This certificate demonstrates that NFTs have real utility beyond speculation - you just proved it by completing this article!*`;
+            
+            document.getElementById('embedCode').textContent = htmlEmbed;
+            document.getElementById('markdownCode').textContent = markdownEmbed;
+        }
+        
+        function downloadQR() {
+            const canvas = document.querySelector('#qrCode canvas');
+            if (!canvas) {
+                alert('Please generate a QR code first');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'nft-article-qr-code.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadSVG() {
+            const url = document.getElementById('url').value.trim();
+            const size = parseInt(document.getElementById('size').value);
+            const errorCorrectionLevel = document.getElementById('errorCorrection').value;
+            
+            if (!url) {
+                alert('Please generate a QR code first');
+                return;
+            }
+            
+            QRCode.toString(url, {
+                type: 'svg',
+                width: size,
+                height: size,
+                errorCorrectionLevel: errorCorrectionLevel
+            }, function (error, string) {
+                if (error) {
+                    console.error(error);
+                    alert('Error generating SVG');
+                    return;
+                }
+                
+                const blob = new Blob([string], { type: 'image/svg+xml' });
+                const url_svg = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.download = 'nft-article-qr-code.svg';
+                link.href = url_svg;
+                link.click();
+                
+                URL.revokeObjectURL(url_svg);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Article Completion Certificate</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .certificate {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #f8f9ff, #ffffff);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="email"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .certificate-display {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #f8f9ff, #ffffff);
+        }
+        
+        .cert-title {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .cert-content {
+            font-size: 1.2em;
+            color: #555;
+            line-height: 1.8;
+            margin: 20px 0;
+        }
+        
+        .cert-signature {
+            margin-top: 30px;
+            font-style: italic;
+            color: #666;
+        }
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .hash-display {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏆 NFT Article Completion Certificate</h1>
+        <p class="subtitle">Proof that NFTs have real utility beyond JPEGs</p>
+        
+        <div class="certificate">
+            <div class="form-group">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email (optional):</label>
+                <input type="email" id="email" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="wallet">Wallet Address (optional):</label>
+                <input type="text" id="wallet" placeholder="0x... (for future airdrops)">
+            </div>
+            
+            <button class="generate-btn" onclick="generateCertificate()">
+                Generate My Certificate
+            </button>
+        </div>
+        
+        <div id="certificateDisplay" class="certificate-display">
+            <div class="cert-title">Certificate of Completion</div>
+            <div class="cert-content">
+                This certifies that <strong id="certName"></strong> has successfully read and completed the comprehensive article:<br><br>
+                <em>"Beyond JPEGs: Understanding the Real Utility of NFTs"</em><br><br>
+                By completing this article, the holder has demonstrated understanding of NFT technology, smart contracts, and blockchain applications beyond speculative trading.
+            </div>
+            <div class="cert-signature">
+                Issued on: <span id="certDate"></span><br>
+                Certificate ID: <span id="certId"></span>
+            </div>
+            <div class="hash-display">
+                <strong>Certificate Hash:</strong><br>
+                <span id="certHash"></span>
+            </div>
+            <button class="download-btn" onclick="downloadCertificate()">Download PNG</button>
+            <button class="download-btn" onclick="downloadJSON()">Download JSON</button>
+        </div>
+    </div>
+
+    <script>
+        async function generateHash(data) {
+            const encoder = new TextEncoder();
+            const dataBuffer = encoder.encode(data);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function generateCertificate() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const wallet = document.getElementById('wallet').value.trim();
+            
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            const now = new Date();
+            const certId = `NFT-CERT-${now.getTime()}`;
+            const certData = {
+                name: name,
+                email: email,
+                wallet: wallet,
+                article: "Beyond JPEGs: Understanding the Real Utility of NFTs",
+                completionDate: now.toISOString(),
+                certificateId: certId
+            };
+            
+            const hash = await generateHash(JSON.stringify(certData));
+            
+            document.getElementById('certName').textContent = name;
+            document.getElementById('certDate').textContent = now.toLocaleDateString();
+            document.getElementById('certId').textContent = certId;
+            document.getElementById('certHash').textContent = hash;
+            
+            document.getElementById('certificateDisplay').style.display = 'block';
+            
+            // Store certificate data for download
+            window.currentCertificate = { ...certData, hash: hash };
+        }
+
+        function downloadCertificate() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 800;
+            canvas.height = 600;
+            
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Certificate background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(50, 50, canvas.width - 100, canvas.height - 100);
+            
+            // Border
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
+            
+            // Text
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 36px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('CERTIFICATE OF COMPLETION', canvas.width / 2, 150);
+            
+            ctx.font = '24px Arial';
+            ctx.fillText('This certifies that', canvas.width / 2, 220);
+            
+            ctx.font = 'bold 32px Arial';
+            ctx.fillStyle = '#667eea';
+            ctx.fillText(window.currentCertificate.name, canvas.width / 2, 280);
+            
+            ctx.font = '20px Arial';
+            ctx.fillStyle = '#333';
+            ctx.fillText('has successfully completed the article:', canvas.width / 2, 320);
+            
+            ctx.font = 'italic 22px Arial';
+            ctx.fillText('"Beyond JPEGs: Understanding the Real Utility of NFTs"', canvas.width / 2, 360);
+            
+            ctx.font = '16px Arial';
+            ctx.fillText(`Issued: ${new Date().toLocaleDateString()}`, canvas.width / 2, 450);
+            ctx.fillText(`Certificate ID: ${window.currentCertificate.certificateId}`, canvas.width / 2, 480);
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `NFT-Article-Certificate-${window.currentCertificate.name.replace(/[^a-zA-Z0-9]/g, '-')}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        function downloadJSON() {
+            const data = JSON.stringify(window.currentCertificate, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.download = `NFT-Article-Certificate-${window.currentCertificate.name.replace(/[^a-zA-Z0-9]/g, '-')}.json`;
+            link.href = url;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
