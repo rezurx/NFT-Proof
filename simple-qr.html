@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple QR Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, select, button { padding: 10px; margin: 10px 0; font-size: 16px; }
+        input[type="url"] { width: 100%; }
+        button { background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #result { margin-top: 30px; text-align: center; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Simple QR Code Generator</h1>
+    
+    <div>
+        <label>URL:</label>
+        <input type="url" id="url" placeholder="https://poap.website/The-Cybernetic-Ceviché" value="https://rezurx.github.io/NFT-Proof/">
+    </div>
+    
+    <div>
+        <label>Size:</label>
+        <select id="size">
+            <option value="200">200x200</option>
+            <option value="300" selected>300x300</option>
+            <option value="400">400x400</option>
+        </select>
+    </div>
+    
+    <button onclick="generateQR()">Generate QR Code</button>
+    
+    <div id="result" class="hidden">
+        <h3>Your QR Code:</h3>
+        <div id="qrcode"></div>
+        <br>
+        <button onclick="downloadQR()">Download PNG</button>
+        
+        <h4>For Substack Article:</h4>
+        <textarea id="substack-text" rows="8" cols="50" readonly></textarea>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script>
+        function generateQR() {
+            const url = document.getElementById('url').value.trim();
+            const size = parseInt(document.getElementById('size').value);
+            
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            // Clear previous
+            document.getElementById('qrcode').innerHTML = '';
+            
+            // Generate QR
+            QRCode.toCanvas(document.getElementById('qrcode'), url, {
+                width: size,
+                height: size
+            }, function (error) {
+                if (error) {
+                    alert('Error: ' + error);
+                    return;
+                }
+                
+                // Show result
+                document.getElementById('result').classList.remove('hidden');
+                
+                // Generate Substack text
+                const substackText = `🏆 **Claim Your Proof of Reading Certificate**
+
+You just experienced real NFT utility!
+
+[Upload the QR code image here]
+
+**Scan the QR code above** or **click here**: ${url}
+
+This demonstrates proof-of-engagement - the same concept behind real NFT utility!`;
+                
+                document.getElementById('substack-text').value = substackText;
+            });
+        }
+        
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (!canvas) {
+                alert('Generate QR code first');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'nft-qr-code.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>
